@@ -1,0 +1,29 @@
+[33mcommit 101da6570bba6584e3ce5b56690c52f118a89d2c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: dristicg <dristi.gupta.cg@gmail.com>
+Date:   Sun Feb 16 11:21:53 2025 +0530
+
+    [200~
+
+[33mcommit 82e5533921192c92e6b5fe6ef88b611d0a91442d[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: dristicg <dristi.gupta.cg@gmail.com>
+Date:   Sun Feb 9 16:25:16 2025 +0530
+
+    authorization of admin routes are created and shopping view o=for admin and user routes are created
+
+[33mcommit ee69777edbff5061fae37b531e833a184db54c51[m
+Author: dristicg <dristi.gupta.cg@gmail.com>
+Date:   Sun Feb 9 11:01:33 2025 +0530
+
+    added client side file installend the necessary packeges for frontend and css framework tailwind css and shadcn and exported button from shadcn
+
+[33mcommit 40afd551a1aba345bc7a8df3031f1ed7fccec69e[m
+Author: dristicg <dristi.gupta.cg@gmail.com>
+Date:   Sat Feb 8 16:50:33 2025 +0530
+
+    added server module
+
+[33mcommit b1f29b6a6faff8a93c6626c02e06065b652cf5a3[m
+Author: Patel Neel Mahesh <77996149+PatelNeelMahesh@users.noreply.github.com>
+Date:   Thu Feb 6 19:54:28 2025 +0530
+
+    Initial commit
