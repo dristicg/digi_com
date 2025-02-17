@@ -59,10 +59,12 @@
 import { toast } from "sonner"; // Import toast from sonner
 import CommonForm from "@/components/common/form";
 import { registerFormControls } from "@/config";
-import { registerUser } from "@/store/auth-slice";
+import { registerUser, loginUser } from "@/store/auth-slice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+// import { fetchCurrentUser } from "@/store/auth-slice"; // Import action
+
 
 const initialState = {
   userName: "",

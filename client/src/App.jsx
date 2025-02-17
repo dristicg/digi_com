@@ -17,14 +17,26 @@ import ShoppingCheckout from "./pages/shopping-view/checkout";
 import ShoppingAccount from "./pages/shopping-view/account";
 import CheckAuth from "./components/common/check-auth";
 import UnauthPage from "./pages/unauth-page/index";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
+ import { checkAuth } from "./store/auth-slice/index"; // Ensure the correct path
+
 
 function App() {
 
-  const isAuthenticated=false;
-  const user={
-    name: "Dristi",
-    role: "Admin",
-  }
+  const { user, isAuthenticated, isLoading } = useSelector(
+    (state) => state.auth
+  );
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  // if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
+
+  // console.log(isLoading, user);
 
   
 
