@@ -1,6 +1,6 @@
 
-import { Route, Routes } from "react-router-dom";
-
+// import { Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
@@ -20,7 +20,15 @@ import UnauthPage from "./pages/unauth-page/index";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
  import { checkAuth } from "./store/auth-slice/index"; // Ensure the correct path
+//  import { Navigate } from "react-router-dom";
+import PrivateRoutes from "./components/common/PrivateRoutes";
 
+
+
+ function PrivateRoute({ children }) {
+  const { user } = useSelector((state) => state.auth); // Check if user is logged in
+  return user ? children : <Navigate to="/auth/login" />;
+}
 
 function App() {
 
@@ -34,7 +42,7 @@ function App() {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  // if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
+  if (isLoading) return <div>Loading...</div>
 
   // console.log(isLoading, user);
 
@@ -75,13 +83,15 @@ function App() {
         <Route
           path="/shop"
           element={
+            <PrivateRoute>
             <CheckAuth isAuthenticated={isAuthenticated} user={user}>
               <ShoppingLayout />
             </CheckAuth>
+            </PrivateRoute>
           }
         />
         <Route path="*" element={<NotFound />} />
-        <Route path="/unauth-page" elememt={<UnauthPage />} />
+        <Route path="/unauth-page" element={<UnauthPage />} />
 
 
         <Route path="home" element={<ShoppingHome />} />
