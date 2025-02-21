@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { UploadCloudIcon } from "lucide-react";
 
 
-function ProductImageUpload({ imageFile, setImageFile, uploadedImageUrl, setUploadedImageUrl }) {
+function ProductImageUpload({ imageFile, setImageFile, uploadedImageUrl, setUploadedImageUrl, setImageLoadingState }) {
 
     const inputRed = useRef(null)
 
@@ -37,7 +37,25 @@ function ProductImageUpload({ imageFile, setImageFile, uploadedImageUrl, setUplo
         if (inputRef.current) {
             inputRef.current.value = "";
         }
+        async function uploadImageToCloudinary() {
+            setImageLoadingState(true);
+            const data = new FormData();
+            data.append("my_file", imageFile);
+            const response = await axios.post(
+              "http://localhost:5000/api/admin/products/upload-image",
+              data
+            );
+            console.log(response, "response");
+        
+            if (response?.data?.success) {
+               setUploadedImageUrl(response.data.result.url);
+              setImageLoadingState(false);
+            }
+          }
 
+        useEffect(() => {
+            if (imageFile !== null) uploadImageToCloudinary();
+          }, [imageFile]);
 
         return (
             <div className="{`w-full max-w-md mx-auto">
