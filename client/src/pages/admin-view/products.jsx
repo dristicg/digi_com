@@ -63,7 +63,13 @@ useEffect(() => {
       <div className="button-container">
         <Button onClick={() => setOpenCreateProductsDialog(true)}>Add New Product</Button>
       </div>
-      <div className="product-grid"> </div>
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+        {
+            productList && productList.length > 0 ? productList.map((productItem) => (
+                
+            )
+        }
+     </div>
       <Sheet
         open={openCreateProductsDialog}
         onOpenChange={() => {
