@@ -1,15 +1,12 @@
+const express = require('express');
+const { registerUser, loginUser, logoutUser } = require("../../controllers/auth/auth-controller");
+// const authMiddleware = require("../../middleware/authMiddleware");
 
-// const express = require('express')
-// const { registerUser, loginUser, logoutUser, } = require("../../controllers/auth/auth-controller");
-// // const { protect } = require("../../middleware/authMiddleware"); 
-// const authMiddleware = require("../middleware/authMiddleware");
-// const router = express.Router();
+const router = express.Router();
 
-// router.post("/register", registerUser); 
-// router.post("/login", loginUser);
-// router.post("/logout", logoutUser);
-
-// // auth middleware logic 
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.post("/logout", logoutUser);
 
 // router.get("/check-auth", authMiddleware, (req, res) => {
 //     const user = req.user;
@@ -18,28 +15,6 @@
 //       message: "Authenticated user!",
 //       user,
 //     });
-//   });
-
-// module.exports = router;
-
-const express = require('express');
-const { registerUser, loginUser, logoutUser } = require("../../controllers/auth/auth-controller"); 
-const authMiddleware = require("../../middleware/authMiddleware");  // ✅ Correct the path here
-
-const router = express.Router();
-
-router.post("/register", registerUser); 
-router.post("/login", loginUser);
-router.post("/logout", logoutUser);
-
-// Protected route - checks if user is authenticated
-router.get("/check-auth", authMiddleware, (req, res) => {
-    const user = req.user;
-    res.status(200).json({
-      success: true,
-      message: "Authenticated user!",
-      user,
-    });
-});
+// });
 
 module.exports = router;

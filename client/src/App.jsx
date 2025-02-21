@@ -6,7 +6,7 @@ import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
 import AdminLayout from "./components/admin-view/layout";
 import AdminDashboard from "./pages/admin-view/dashboard";
-import AdminProducts from "./pages/admin-view/products";
+import AdminProducts from "./pages/admin-view/products.jsx";
 import AdminOrders from "./pages/admin-view/orders";
 import AdminFeatures from "./pages/admin-view/features";
 import NotFound from "./pages/notFound/index";
@@ -19,9 +19,10 @@ import CheckAuth from "./components/common/check-auth";
 import UnauthPage from "./pages/unauth-page/index";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
- import { checkAuth } from "./store/auth-slice/index"; // Ensure the correct path
+//  import { checkAuth } from "./store/auth-slice/index"; // Ensure the correct path
 //  import { Navigate } from "react-router-dom";
 import PrivateRoutes from "./components/common/PrivateRoutes";
+import "./App.css";
 
 
 
@@ -32,19 +33,22 @@ import PrivateRoutes from "./components/common/PrivateRoutes";
 
 function App() {
 
-  const { user, isAuthenticated, isLoading } = useSelector(
-    (state) => state.auth
-  );
+  // const { user, isAuthenticated, isLoading } = useSelector(
+  //   (state) => state.auth
+  // );
+  // for testing 
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+const isLoading = false; // Force it to false
+
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(checkAuth());
+  // }, [dispatch]);
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) console.log("Still Loading...");
 
-  // console.log(isLoading, user);
 
   
 
@@ -56,23 +60,14 @@ function App() {
         <Route
           path="/auth"
           element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
               <AuthLayout />
-            </CheckAuth>
           }
         >
           <Route path="login" element={<AuthLogin />} />
           <Route path="register" element={<AuthRegister />} />
         </Route>
 
-        <Route
-          path="/admin"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <AdminLayout />
-            </CheckAuth>
-          }
-        >
+        <Route path="/admin" element={<AdminLayout />} >
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
@@ -84,9 +79,9 @@ function App() {
           path="/shop"
           element={
             <PrivateRoute>
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+            
               <ShoppingLayout />
-            </CheckAuth>
+            
             </PrivateRoute>
           }
         />
