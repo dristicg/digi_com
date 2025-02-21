@@ -4,8 +4,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import CommonForm from "@/components/common/form";
 import { addProductFormElements } from "@/config";
 import "./products.css"; // Import the CSS file
-
-function onSubmit() {}
+import { addNewProduct } from "@/store/admin/product-slice";
+import { useToast } from "@/components/ui/use-toast";
 
 const initialFormData = {
   image: null,
@@ -19,6 +19,8 @@ const initialFormData = {
   averageReview: 0,
 };
 
+
+
 function AdminProducts() {
   const [openCreateProductsDialog, setOpenCreateProductsDialog] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
@@ -27,9 +29,34 @@ function AdminProducts() {
   const [imageLoadingState, setImageLoadingState] = useState(false);
 //   const [currentEditedId, setCurrentEditedId] = useState(null);
 
-//   const { productList } = useSelector((state) => state.adminProducts);
-//   const dispatch = useDispatch();
+const { productList } = useSelector((state) => state.adminProducts);
+  const dispatch = useDispatch();
 //   const { toast } = useToast();
+
+function onSubmit(event) {
+    event.preventDefault();
+     dispatch(
+        addNewProduct({
+          ...formData,
+          image: uploadedImageUrl,
+        })
+        ).then((data) => {
+            if (data?.payload?.success) {
+              dispatch(fetchAllProducts());
+              setOpenCreateProductsDialog(false);
+              setImageFile(null);
+              setFormData(initialFormData);
+              toast({
+                title: "Product add successfully",
+              });
+            }
+          });
+}
+
+useEffect(() => {
+    dispatch(fetchAllProducts());
+  }, [dispatch]);
+
 
   return (
     <Fragment>
@@ -52,7 +79,7 @@ function AdminProducts() {
             uploadedImageUrl={uploadedImageUrl}
             setUploadedImageUrl={setUploadedImageUrl}
             setImageLoadingState={setImageLoadingState}
-            // imageLoadingState={imageLoadingState}
+            imageLoadingState={imageLoadingState}
             // isEditMode={currentEditedId !== null}
              />
           <div className="form-wrapper">
