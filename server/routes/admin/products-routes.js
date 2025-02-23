@@ -19,4 +19,4 @@ router.delete("/delete/:id", deleteProduct);
 router.get("/get", fetchAllProducts);
 
 
-module.export = router;
+module.exports = router;

@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './auth-slice/index.jsx';
-import adminProductsSlice from "./admin/products-slice";
+import adminProductsSlice from "./admin/products-slice/index.js";
 // import adminOrderSlice from "./admin/order-slice";
 
 // import shopProductsSlice from "./shop/products-slice";

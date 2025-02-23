@@ -3,65 +3,74 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { useEffect, useRef } from "react";
 import { UploadCloudIcon } from "lucide-react";
+import { FileIcon, XIcon, } from "lucide-react"; //UploadCloudIcon add karana hai isko bad me
+import { Button } from "../ui/button";
+import axios from "axios";
+import { Skeleton } from "../ui/skeleton";
 
 
-function ProductImageUpload({ imageFile, setImageFile, uploadedImageUrl, setUploadedImageUrl, setImageLoadingState, isEditMode }) {
 
-    const inputRed = useRef(null)
+function ProductImageUpload({
+  imageFile,
+  setImageFile,
+  uploadedImageUrl,
+  setUploadedImageUrl,
+  setImageLoadingState,
+  imageLoadingState,
+  isEditMode
+}) {
+  const inputRef = useRef(null)
 
+  function handleImageFileChange(event) {
+    console.log(event.target.files, "event.target.files");
+    const selectedFile = event.target.files?.[0];
+    console.log(selectedFile);
 
-    function handleImageFileChange(event) {
-        console.log(event.target.files, "event.target.files");
-        const selectedFile = event.target.files?.[0];
-        console.log(selectedFile);
+    if (selectedFile) setImageFile(selectedFile);
+  }
 
-        if (selectedFile) setImageFile(selectedFile);
+  function handleDragOver(event) {
+    event.preventDefault();
+  }
+
+  function handleDrop(event) {
+    event.preventDefault();
+    const droppedFile = event.dataTransfer.files?.[0];
+    if (droppedFile) setImageFile(droppedFile);
+  }
+
+  function handleRemoveImage() {
+    setImageFile(null);
+    if (inputRef.current) {
+      inputRef.current.value = "";
     }
+  }
 
-    function handleDragOver(event) {
-        event.preventDefault();
+  async function uploadImageToCloudinary() {
+    setImageLoadingState(true);
+    const data = new FormData();
+    data.append("my_file", imageFile);
+    const response = await axios.post(
+      "http://localhost:5000/api/admin/products/upload-image",
+      data
+    );
+    console.log(response, "response");
+
+    if (response?.data?.success) {
+      setUploadedImageUrl(response.data.result.url);
+      setImageLoadingState(false);
     }
+  }
 
-    function handleDragOver(event) {
-        event.preventDefault();
-    }
+  useEffect(() => {
+    if (imageFile !== null) uploadImageToCloudinary();
+  }, [imageFile]);
 
-    function handleDrop(event) {
-        event.preventDefault();
-        const droppedFile = event.dataTransfer.files?.[0];
-        if (droppedFile) setImageFile(droppedFile);
-    }
-
-    function handleRemoveImage() {
-        setImageFile(null);
-        if (inputRef.current) {
-            inputRef.current.value = "";
-        }
-        async function uploadImageToCloudinary() {
-            setImageLoadingState(true);
-            const data = new FormData();
-            data.append("my_file", imageFile);
-            const response = await axios.post(
-              "http://localhost:5000/api/admin/products/upload-image",
-              data
-            );
-            console.log(response, "response");
-        
-            if (response?.data?.success) {
-               setUploadedImageUrl(response.data.result.url);
-              setImageLoadingState(false);
-            }
-          }
-
-        useEffect(() => {
-            if (imageFile !== null) uploadImageToCloudinary();
-          }, [imageFile]);
-
-        return (
-            <div className="{`w-full max-w-md mx-auto">
-                <Lable className="text-lg font-semibold mb-2 block">Upload Image</Lable>
-                <div onDragOver={handleDragOver} onDrop={handleDrop} className="border-2 border-dashed rounded-lg p-4">
-                <Input
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <Label className="text-lg font-semibold mb-2 block">Upload Image</Label>
+      <div onDragOver={handleDragOver} onDrop={handleDrop} className="border-2 border-dashed rounded-lg p-4">
+        <Input
           id="image-upload"
           type="file"
           className="hidden"
@@ -70,15 +79,16 @@ function ProductImageUpload({ imageFile, setImageFile, uploadedImageUrl, setUplo
           disabled={isEditMode}
         />
         {!imageFile ? (
+
           <Label
             htmlFor="image-upload"
-            className={`${
-              isEditMode ? "cursor-not-allowed" : ""
-            } flex flex-col items-center justify-center h-32 cursor-pointer`}
+            className={`${isEditMode ? "cursor-not-allowed" : ""
+              } flex flex-col items-center justify-center h-32 cursor-pointer text-[#1A202C]`}
           >
-            <UploadCloudIcon className="w-10 h-10 text-muted-foreground mb-2" />
+            <UploadCloudIcon className="w-10 h-10 text-[#1A202C] mb-2" />
             <span>Drag & drop or click to upload image</span>
           </Label>
+
         ) : imageLoadingState ? (
           <Skeleton className="h-10 bg-gray-100" />
         ) : (

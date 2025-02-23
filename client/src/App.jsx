@@ -23,6 +23,7 @@ import { useEffect } from "react";
 //  import { Navigate } from "react-router-dom";
 import PrivateRoutes from "./components/common/PrivateRoutes";
 import "./App.css";
+import './index.css'; // Ya jo bhi CSS file ho
 
 
 
