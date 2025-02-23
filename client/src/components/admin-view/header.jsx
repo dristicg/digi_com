@@ -10,8 +10,8 @@ function handleLogout() {
 
 
 function AdminHeader({ setOpen }) {
-  const dispatch = useDispatch()
-  
+  // const dispatch = useDispatch()
+
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-white border-b">
       <Button onClick={() => setOpen(true)} className="lg:hidden sm:block">

@@ -27,7 +27,7 @@ import './index.css'; // Ya jo bhi CSS file ho
 
 
 
- function PrivateRoute({ children }) {
+function PrivateRoute({ children }) {
   const { user } = useSelector((state) => state.auth); // Check if user is logged in
   return user ? children : <Navigate to="/auth/login" />;
 }
@@ -39,7 +39,7 @@ function App() {
   // );
   // for testing 
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-const isLoading = false; // Force it to false
+  const isLoading = false; // Force it to false
 
 
   const dispatch = useDispatch();
@@ -51,7 +51,7 @@ const isLoading = false; // Force it to false
   if (isLoading) console.log("Still Loading...");
 
 
-  
+
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">
@@ -61,7 +61,7 @@ const isLoading = false; // Force it to false
         <Route
           path="/auth"
           element={
-              <AuthLayout />
+            <AuthLayout />
           }
         >
           <Route path="login" element={<AuthLogin />} />
@@ -79,78 +79,24 @@ const isLoading = false; // Force it to false
         <Route
           path="/shop"
           element={
-            <PrivateRoute>
-            
+           // <PrivateRoute>
               <ShoppingLayout />
-            
-            </PrivateRoute>
+           // </PrivateRoute>
           }
-        />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/unauth-page" element={<UnauthPage />} />
-
-
+        >
         <Route path="home" element={<ShoppingHome />} />
         <Route path="listing" element={<ShoppingListing />} />
         <Route path="checkout" element={<ShoppingCheckout />} />
         <Route path="account" element={<ShoppingAccount />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+        <Route path="/unauth-page" element={<UnauthPage />} />
 
       </Routes>
 
-{/* <Routes>
-  <Route
-    path="/auth"
-    element={
-      console.log("Rendering AuthLayout") || (
-        <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-          <AuthLayout />
-        </CheckAuth>
-      )
-    }
-  >
-    <Route path="login" element={console.log("Rendering AuthLogin") || <AuthLogin />} />
-    <Route path="register" element={console.log("Rendering AuthRegister") || <AuthRegister />} />
-  </Route>
-
-  <Route
-    path="/admin"
-    element={
-      console.log("Rendering AdminLayout") || (
-        <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-          <AdminLayout />
-        </CheckAuth>
-      )
-    }
-  >
-    <Route path="dashboard" element={console.log("Rendering AdminDashboard") || <AdminDashboard />} />
-    <Route path="products" element={console.log("Rendering AdminProducts") || <AdminProducts />} />
-    <Route path="orders" element={console.log("Rendering AdminOrders") || <AdminOrders />} />
-    <Route path="features" element={console.log("Rendering AdminFeatures") || <AdminFeatures />} />
-  </Route>
-
-  <Route
-    path="/shop"
-    element={
-      console.log("Rendering ShoppingLayout") || (
-        <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-          <ShoppingLayout />
-        </CheckAuth>
-      )
-    }
-  />
-  
-  <Route path="*" element={console.log("Rendering NotFound") || <NotFound />} />
-  <Route path="/unauth-page" element={console.log("Rendering UnauthPage") || <UnauthPage />} />
-  
-  <Route path="home" element={console.log("Rendering ShoppingHome") || <ShoppingHome />} />
-  <Route path="listing" element={console.log("Rendering ShoppingListing") || <ShoppingListing />} />
-  <Route path="checkout" element={console.log("Rendering ShoppingCheckout") || <ShoppingCheckout />} />
-  <Route path="account" element={console.log("Rendering ShoppingAccount") || <ShoppingAccount />} />
-</Routes> */}
-
-
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
