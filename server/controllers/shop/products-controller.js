@@ -41,8 +41,7 @@ const getFilteredProducts = async (req, res) => {
           break;
       }
 
-      //const filters = req.query.filters || {};  // ✅ Ensure filters is defined
-        //console.log("Received Filters:", filters); // ✅ Debugging
+  
         const products = await Product.find(filters).sort(sort);
 
        
