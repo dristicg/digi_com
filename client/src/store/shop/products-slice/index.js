@@ -29,32 +29,6 @@ const initialState = {
   );
 
 
-// export const fetchAllFilteredProducts = createAsyncThunk(
-//     "shopProducts/fetchAllFilteredProducts",
-//     async (_, { rejectWithValue }) => {
-//         console.log("Fetching products API called...");  // ✅ This appears
-
-//         try {
-//             console.log("Making API request to /api/products");  // ✅ Debug API call
-//             const response = await fetch("http://localhost:5000/api/shop/products/get");  // Check API URL
-//             console.log("Response received:", response);  // ✅ Should show response object
-
-//             if (!response.ok) {
-//                 throw new Error(`Failed to fetch products: ${response.statusText}`);
-//             }
-
-//             const data = await response.json();
-//             console.log("API Response:", data);  // ✅ Should show product data
-//             return data;
-//         } catch (error) {
-//             console.error("Error fetching products:", error);
-//             return rejectWithValue(error.message);
-//         }
-//     }
-// );
-
-
-
   export const fetchProductDetails = createAsyncThunk(
     "/products/fetchProductDetails",
     async (id) => {

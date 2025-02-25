@@ -1,6 +1,7 @@
 
 
 import ProductFilter from "@/components/shopping-view/filter";
+import ProductDetailsDialog from "@/components/shopping-view/product-details";
 //import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { Button } from "@/components/ui/button";
@@ -40,8 +41,6 @@ function createSearchParamsHelper(filterParams) {
   
     return queryParams.join("&");
   }
-
-
 
 function ShoppingListing() {
     const dispatch = useDispatch();
@@ -110,6 +109,9 @@ function ShoppingListing() {
           );
       }, [dispatch, sort, filters]);
 
+      useEffect(() => {
+        if (productDetails !== null) setOpenDetailsDialog(true);
+      }, [productDetails]);
 
     console.log(productList, "productList");
 
@@ -213,6 +215,10 @@ function ShoppingListing() {
 
                 </div>
             </div>
+            <ProductDetailsDialog
+            open={openDetailsDialog}
+            setOpen={setOpenDetailsDialog}
+            productDetails={productDetails} />
         </div>
     );
 }
