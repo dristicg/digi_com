@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import CommonForm from "@/components/common/form";
 import { addProductFormElements } from "@/config";
-import "./products.css"; // Import the CSS file
+// import "./products.css"; // Import the CSS file
 //import { addNewProduct } from "@/store/admin/product-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -105,7 +105,7 @@ function AdminProducts() {
   return (
     <Fragment>
       <div className="button-container">
-        <Button onClick={() => setOpenCreateProductsDialog(true)}>Add New Product</Button>
+        <Button className="bg-black text-white hover:bg-gray-800" onClick={() => setOpenCreateProductsDialog(true)}>Add New Product</Button>
       </div>
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
        {productList && productList.length > 0
@@ -122,6 +122,7 @@ function AdminProducts() {
           : null}
       </div>
       <Sheet
+
         open={openCreateProductsDialog}
         onOpenChange={() => {
           setOpenCreateProductsDialog(false);
@@ -129,7 +130,7 @@ function AdminProducts() {
           setFormData(initialFormData);
         }}
       >
-        <SheetContent side="right" className="sheet-content">
+        <SheetContent side="right" className="sheet-content overflow-y-auto max-h-[100vh]">
           <SheetHeader>
             <SheetTitle>
               {

@@ -7,6 +7,8 @@ const authRouter = require("./routes/auth/auth-routes");
 const adminProductsRouter = require("./routes/admin/products-routes");
 // const adminOrderRouter = require("./routes/admin/order-routes");
 
+const shopProductsRouter = require("./routes/shop/products-routes");
+
 // Database Connection
 mongoose
   .connect(process.env.MONGO_URI)
@@ -29,5 +31,6 @@ app.use(
 // Routes
 app.use("/api/auth", authRouter);
 app.use("/api/admin/products", adminProductsRouter);
+app.use("/api/shop/products", shopProductsRouter);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
