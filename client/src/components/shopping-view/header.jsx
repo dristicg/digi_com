@@ -18,13 +18,13 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-  } from "../ui/dropdown-menu";
-  import { Avatar, AvatarFallback } from "../ui/avatar";
-  import { logoutUser } from "@/store/auth-slice";
-//   import UserCartWrapper from "./cart-wrapper";
-  import { useEffect, useState } from "react";
-  // import { fetchCartItems } from "@/store/shop/cart-slice";
-  import { Label } from "../ui/label";
+} from "../ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import { logoutUser } from "@/store/auth-slice";
+ import UserCartWrapper from "./cart-wrapper";
+import { useEffect, useState } from "react";
+import { fetchCartItems } from "@/store/shop/cart-slice";
+import { Label } from "../ui/label";
 
 
 
@@ -60,7 +60,7 @@ function ShoppingHeader() {
                     </SheetTrigger>
                     <SheetContent side="left" className="w-full max-w-xs">
                         <MenuItems />
-                        <HeaderRightContent /> 
+                        <HeaderRightContent />
                     </SheetContent>
                 </Sheet>
                 <div className="hidden lg:block">
@@ -78,35 +78,46 @@ function ShoppingHeader() {
 
 function HeaderRightContent() {
     const { user } = useSelector((state) => state.auth);
-    //const { cartItems } = useSelector((state) => state.shopCart);
+    const { cartItems } = useSelector((state) => state.shopCart);
     const [openCartSheet, setOpenCartSheet] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     function handleLogout() {
         dispatch(logoutUser());
-      }
+    }
 
-    
+
     return (
         <div className="flex lg:items-center lg:flex-row flex-col gap-4">
-            <Button
-                onClick={() => setOpenCartSheet(true)}
-                variant="outline"
-                size="icon"
-                className="relative"
-            >
-                <ShoppingCart className="w-6 h-6" />
-                {/* <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
-            {cartItems?.items?.length || 0}
-          </span> */}
-                <span className="sr-only">User cart</span>
-            </Button>
+            <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
+                <Button
+                    onClick={() => setOpenCartSheet(true)}
+                    variant="outline"
+                    size="icon"
+                    className="relative"
+                >
+                    <ShoppingCart className="w-6 h-6" />
+                    <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
+                        {cartItems?.items?.length || 0}
+                    </span>
+                    <span className="sr-only">User cart</span>
+                </Button>
+                <UserCartWrapper
+                    setOpenCartSheet={setOpenCartSheet}
+                    cartItems={
+                        cartItems && cartItems.items && cartItems.items.length > 0
+                            ? cartItems.items
+                            : []
+                    }
+                />
+            </Sheet>
+
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Avatar className="bg-black">
                         <AvatarFallback className="bg-black text-white font-extrabold">
-                            {user?.userName[0].toUpperCase()} 
+                            {user?.userName[0].toUpperCase()}
                         </AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
@@ -122,7 +133,7 @@ function HeaderRightContent() {
                         <LogOut className="mr-2 h-4 w-4" />
                         Logout
                     </DropdownMenuItem>
-                </DropdownMenuContent>   
+                </DropdownMenuContent>
             </DropdownMenu>
         </div>
     )
