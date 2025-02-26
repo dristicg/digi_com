@@ -24,6 +24,20 @@ export const addToCart = createAsyncThunk(
   }
 );
 
+// export const addToCart = async (productId, quantity) => {
+//   const userId = localStorage.getItem("userId"); // Or get from Redux/Context
+//   console.log("🔍 Sending API request with:", { userId, productId, quantity });
+
+//   const response = await fetch("http://localhost:5000/api/shop/cart/add", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ userId, productId, quantity }),
+//   });
+
+//   const data = await response.json();
+//   console.log("✅ Response:", data);
+// };
+
 export const fetchCartItems = createAsyncThunk(
   "cart/fetchCartItems",
   async (userId) => {
@@ -68,6 +82,7 @@ const shoppingCartSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+   
       .addCase(addToCart.pending, (state) => {
         state.isLoading = true;
       })
@@ -112,6 +127,7 @@ const shoppingCartSlice = createSlice({
         state.isLoading = false;
         state.cartItems = [];
       });
+      
   },
 });
 

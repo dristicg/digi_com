@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import UserCartItemsContent from "./cart-items-content";
 
+
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
 
@@ -36,7 +37,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
         </div>
       </div>
       <Button
-        onClick={() => {
+        onClick={() => { 
           navigate("/shop/checkout");
           setOpenCartSheet(false);
         }}

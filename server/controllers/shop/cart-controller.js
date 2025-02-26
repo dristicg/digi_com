@@ -53,6 +53,66 @@ const addToCart = async (req, res) => {
   }
 };
 
+// const addToCart = async (req, res) => {
+//   console.log("🛒 Cart Add API hit! Request body:", req.body);
+
+//   const { userId, productId, quantity } = req.body;
+
+//   if (!userId || !productId || quantity <= 0) {
+//     console.log("❌ Missing fields in request body:", req.body);
+//     return res.status(400).json({
+//       success: false,
+//       message: "Invalid data provided!",
+//     });
+//   }
+
+//   try {
+//     const product = await Product.findById(productId);
+
+//     if (!product) {
+//       console.log("❌ Product not found:", productId);
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
+
+//     let cart = await Cart.findOne({ userId });
+
+//     if (!cart) {
+//       console.log("🆕 Creating new cart for user:", userId);
+//       cart = new Cart({ userId, items: [] });
+//     }
+
+//     const findCurrentProductIndex = cart.items.findIndex(
+//       (item) => item.productId.toString() === productId
+//     );
+
+//     if (findCurrentProductIndex === -1) {
+//       console.log("➕ Adding new product to cart:", productId);
+//       cart.items.push({ productId, quantity });
+//     } else {
+//       console.log("🔄 Updating quantity for product:", productId);
+//       cart.items[findCurrentProductIndex].quantity += quantity;
+//     }
+
+//     await cart.save();
+//     console.log("✅ Cart updated successfully:", cart);
+
+//     res.status(200).json({
+//       success: true,
+//       data: cart,
+//     });
+//   } catch (error) {
+//     console.log("❌ Error in addToCart:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error",
+//     });
+//   }
+// };
+
+
 const fetchCartItems = async (req, res) => {
   try {
     const { userId } = req.params;
