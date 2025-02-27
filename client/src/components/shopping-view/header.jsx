@@ -32,10 +32,11 @@ function MenuItems() {
 
     return (<nav className="flex flex-col mb-3 lg:mb-0 lg:items-center gap-6 lg:flex-row">
         {shoppingViewHeaderMenuItems.map((menuItem) => (
-            <Link className="text-sm font-medium cursor-pointer"
-                key={menuItem.id}>
-                {menuItem.label}
-            </Link>
+            <Link to={menuItem.path} className="text-sm font-medium cursor-pointer"
+            key={menuItem.id}>
+            {menuItem.label}
+        </Link>
+        
 
         ))}
     </nav>
