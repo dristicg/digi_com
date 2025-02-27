@@ -24,6 +24,8 @@ import { useEffect } from "react";
 import PrivateRoutes from "./components/common/PrivateRoutes";
 import "./App.css";
 import './index.css'; // Ya jo bhi CSS file ho
+import SearchProducts from "./pages/shopping-view/search";
+//import NotFound from "@/pages/NotFound"; 
 
 
 
@@ -88,6 +90,9 @@ function App() {
         <Route path="listing" element={<ShoppingListing />} />
         <Route path="checkout" element={<ShoppingCheckout />} />
         <Route path="account" element={<ShoppingAccount />} />
+        {/* <Route path="paypal-return" element={<PaypalReturnPage />} />
+          <Route path="payment-success" element={<PaymentSuccessPage />} /> */}
+          <Route path="search" element={<SearchProducts />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

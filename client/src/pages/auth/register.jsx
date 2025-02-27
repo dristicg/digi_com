@@ -60,6 +60,7 @@ function AuthRegister() {
         formData={formData}
         setFormData={setFormData}
         onSubmit={onSubmit}
+        buttonClass="bg-black hover:bg-gray-900"
       />
     </div>
   );
