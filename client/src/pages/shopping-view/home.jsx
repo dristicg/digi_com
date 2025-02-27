@@ -96,7 +96,7 @@ function ShoppingHome() {
         });
       }
     });
-  }
+  } 
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -114,7 +114,9 @@ function ShoppingHome() {
     );
   }, [dispatch]);
 
- 
+  useEffect(() => {
+    if (productDetails !== null) setOpenDetailsDialog(true);
+  }, [productDetails]);
 
   return (
     <div className="w-full">
