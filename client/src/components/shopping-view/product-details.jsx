@@ -5,7 +5,7 @@ import { Dialog, DialogContent } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { addToCart, getCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "../ui/use-toast";
 import { setProductDetails } from "@/store/shop/products-slice";
 import { Label } from "../ui/label";
@@ -59,7 +59,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
           })
         ).then((data) => {
           if (data?.payload?.success) {
-            dispatch(fetchCartItems(user?.id));
+            dispatch(getCartItems(user?.id));
             toast({
               title: "Product is added to cart",
             });

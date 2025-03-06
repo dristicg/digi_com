@@ -23,7 +23,7 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { logoutUser } from "@/store/auth-slice";
  import UserCartWrapper from "./cart-wrapper";
 import { useEffect, useState } from "react";
-import { fetchCartItems } from "@/store/shop/cart-slice";
+import { getCartItems } from "@/store/shop/cart-slice";
 import { Label } from "../ui/label";
 
 
@@ -89,8 +89,13 @@ function HeaderRightContent() {
     }
 
     useEffect(() => {
-        dispatch(fetchCartItems(user?.id));
-      }, [dispatch]);
+        if (user && user.id) {
+            dispatch(getCartItems(user.id));
+        } else {
+            console.warn("No user ID found, skipping getCartItems");
+        }
+    }, [dispatch, user]); // Ensure `user` is included in dependencies
+    
 
    
 
@@ -123,7 +128,7 @@ function HeaderRightContent() {
                 <DropdownMenuTrigger asChild>
                     <Avatar className="bg-black">
                         <AvatarFallback className="bg-black text-white font-extrabold">
-                            {user?.userName[0].toUpperCase()}
+                        {user?.userName ? user.userName[0].toUpperCase() : "U"}
                         </AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>

@@ -1,11 +1,10 @@
-import CommonForm from "@/components/common/form";
-import { loginFormControls } from "@/config";
-// import { loginUser } from "@/store/auth-slice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { loginUser } from "@/store/auth-slice";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import axios from "axios"; // ✅ Added missing import
+import CommonForm from "@/components/common/form";
+import { loginFormControls } from "@/config";
 
 const initialState = {
   email: "",
@@ -13,50 +12,37 @@ const initialState = {
 };
 
 function AuthLogin() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState(initialState);
   const dispatch = useDispatch();
-  const { toast } = useToast(); // ✅ Fixed toast usage
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   function onSubmit(event) {
     event.preventDefault();
 
     dispatch(loginUser(formData)).then((data) => {
-      if (data?.payload?.success) {
-        toast({
-          title: data?.payload?.message,
-        });
+      if (data.payload.success) {
+        toast({ title: "Logged in successfully!" });
+        navigate("/shop/home");
       } else {
-        toast({
-          title: data?.payload?.message,
-          variant: "destructive",
-        });
+        toast({ title: data.payload.message, variant: "destructive" });
       }
     });
   }
-
-  console.log("formControls in login.jsx:", loginFormControls); // ✅ Moved console.log out of JSX
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Create new account
+          Sign in to your account
         </h1>
-        <p className="mt-2">
-          Already have an account?
-          <Link className="font-medium ml-2 text-primary hover:underline" to="/auth/login">
-            Login
-          </Link>
-        </p>
       </div>
-
       <CommonForm
         formControls={loginFormControls}
-        buttonText={"Sign Up"}
+        buttonText={"Sign In"}
         formData={formData}
         setFormData={setFormData}
         onSubmit={onSubmit}
-        buttonClass="bg-black hover:bg-gray-900"
       />
     </div>
   );

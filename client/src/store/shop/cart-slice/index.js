@@ -2,11 +2,14 @@
 
 import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { getAuth } from "firebase/auth";
 
 const initialState = {
   cartItems: [],
   isLoading: false,
 };
+
+
 
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
@@ -38,16 +41,71 @@ export const addToCart = createAsyncThunk(
 //   console.log("✅ Response:", data);
 // };
 
-export const fetchCartItems = createAsyncThunk(
-  "cart/fetchCartItems",
-  async (userId) => {
-    const response = await axios.get(
-      `http://localhost:5000/api/shop/cart/get/${userId}`
-    );
+// export const fetchCartItems = createAsyncThunk(
+//   "cart/fetchCartItems",
+//   async (_, { getState }) => {
+//     const auth = getAuth();
+//     const user = auth.currentUser; // Firebase Auth user
 
-    return response.data;
+//     console.log("🔍 Checking auth.currentUser:", user); // Debug Firebase User
+
+//     const userId =
+//       user?.uid || // First check Firebase
+//       getState().auth?.user?.uid || // Then check Redux store (if exists)
+//       localStorage.getItem("userId"); // Finally check localStorage
+
+//     console.log("✅ Retrieved userId:", userId); // Check the final userId value
+
+//     if (!userId) {
+//       console.error("❌ Error: userId is undefined! User must be logged in.");
+//       return { data: [] }; // Avoid crashing
+//     }
+
+//     try {
+//       const response = await axios.get(
+//         `http://localhost:5000/api/shop/cart/${userId}`
+//       );
+//       return response.data;
+//     } catch (error) {
+//       console.error("❌ Error fetching cart:", error);
+//       return { data: [] };
+//     }
+//   }
+// );
+
+
+
+export const getCartItems = createAsyncThunk(
+  "cart/getCartItems",
+  async (_, { rejectWithValue }) => {
+    const auth = getAuth();
+    const user = auth.currentUser; // Firebase authenticated user
+
+    console.log("🔍 Checking auth.currentUser:", user); // Debugging
+
+    if (!user) {
+      console.error("❌ Error: No authenticated user found.");
+      return rejectWithValue("User not logged in");
+    }
+
+    const userId = user.uid; // Firebase user ID
+
+    console.log("✅ Retrieved userId:", userId);
+
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/shop/cart/${userId}`
+      );
+      return response.data; // Return the cart data
+    } catch (error) {
+      console.error("❌ Error fetching cart:", error.response?.data || error);
+      return rejectWithValue(error.response?.data || "Error fetching cart");
+    }
   }
 );
+
+
+
 
 export const deleteCartItem = createAsyncThunk(
   "cart/deleteCartItem",
@@ -94,14 +152,14 @@ const shoppingCartSlice = createSlice({
         state.isLoading = false;
         state.cartItems = [];
       })
-      .addCase(fetchCartItems.pending, (state) => {
+      .addCase(getCartItems.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(fetchCartItems.fulfilled, (state, action) => {
+      .addCase(getCartItems.fulfilled, (state, action) => {
         state.isLoading = false;
         state.cartItems = action.payload.data;
       })
-      .addCase(fetchCartItems.rejected, (state) => {
+      .addCase(getCartItems.rejected, (state) => {
         state.isLoading = false;
         state.cartItems = [];
       })

@@ -1,11 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const cookieParser = require("cookie-parser");
+//  const cookieParser = require("cookie-parser"); jwt
 const cors = require("cors");
-const authRouter = require("./routes/auth/auth-routes");
+//  const authRouter = require("./routes/auth/auth-routes"); jwt
 const adminProductsRouter = require("./routes/admin/products-routes");
-// const adminOrderRouter = require("./routes/admin/order-routes");
+ //const adminOrderRouter = require("./routes/admin/order-routes");
 const shopCartRouter = require("./routes/shop/cart-routes");
 
 const shopProductsRouter = require("./routes/shop/products-routes");
@@ -21,9 +21,11 @@ mongoose
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+// app.use(cookieParser()); jwt
 
 app.use(express.json());
-app.use(cookieParser());
+// app.use(express.urlencoded({ extended: true }));
+
 
 app.use(
   cors({
@@ -34,7 +36,7 @@ app.use(
 );
 
 // Routes
-app.use("/api/auth", authRouter);
+// app.use("/api/auth", authRouter); jwt
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/shop/products", shopProductsRouter);
 app.use("/api/shop/cart", shopCartRouter);

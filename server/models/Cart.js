@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const CartSchema = new mongoose.Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "User",
       required: true,
     },
@@ -25,6 +25,7 @@ const CartSchema = new mongoose.Schema(
       },
     ],
   },
+  { collection: "carts" },
   {
     timestamps: true,
   }

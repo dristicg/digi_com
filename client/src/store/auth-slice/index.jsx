@@ -1,5 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { auth } from "@/config/firebase"; // Firebase Auth Instance
 
 const initialState = {
   isAuthenticated: false,
@@ -7,144 +13,130 @@ const initialState = {
   user: null,
 };
 
-export const registerUser = createAsyncThunk(
-  "/auth/register",
-  async (formData) => {
-    const response = await axios.post(
-      "http://localhost:5000/api/auth/register",
-      formData,
-      {
-        withCredentials: true,
-      }
-    );
-    return response.data;
-  }
-);
-
-// Commented out loginUser to remove JWT authentication
-// export const loginUser = createAsyncThunk(
-//   "auth/login",
-//   async (userData, { rejectWithValue }) => {
+// ✅ Register User
+// export const registerUser = createAsyncThunk(
+//   "/auth/register",
+//   async ({ email, password }, { rejectWithValue }) => {
 //     try {
-//       const response = await axios.post("http://localhost:5000/api/auth/login", userData, {
-//         headers: { "Content-Type": "application/json" },
-//         withCredentials: true,
-//       });
-//       return response.data;
+//       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+//       const { uid, email: userEmail, displayName, photoURL } = userCredential.user; // 🔹 Extract serializable fields
+//       return { uid, email: userEmail, displayName, photoURL };
 //     } catch (error) {
-//       return rejectWithValue(error.response?.data || { message: "Something went wrong" });
+//       return rejectWithValue(error.message);
 //     }
 //   }
 // );
 
-export const logoutUser = createAsyncThunk(
-  "/auth/logout",
 
-  async () => {
-    const response = await axios.post(
-      "http://localhost:5000/api/auth/logout",
-      {},
-      {
-        withCredentials: true,
-      }
-    );
+export const registerUser = createAsyncThunk(
+  "/auth/register",
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const { uid, email: userEmail, displayName, photoURL } = userCredential.user;
 
-    return response.data;
-  }
-);
-
-export const checkAuth = createAsyncThunk(
-  "/auth/checkauth",
-
-  async () => {
-    const response = await axios.get(
-      "http://localhost:5000/api/auth/check-auth",
-      {
-        withCredentials: true,
-        headers: {
-          "Cache-Control":
-            "no-store, no-cache, must-revalidate, proxy-revalidate",
-        },
-      }
-    );
-
-    return response.data;
+      // Ensure all values are valid
+      return { 
+        uid, 
+        email: userEmail, 
+        displayName: displayName || "User", 
+        photoURL: photoURL || "" 
+      };
+    } catch (error) {
+      console.error("Firebase Registration Error:", error); // Debugging
+      return rejectWithValue(error.message);
+    }
   }
 );
 
 
-// export const checkAuth = createAsyncThunk(
-//   "/auth/checkauth",
+// ✅ Login User
+export const loginUser = createAsyncThunk(
+  "auth/login",
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const { uid, email: userEmail, displayName, photoURL } = userCredential.user; // 🔹 Extract serializable fields
+      
+      return { success: true, user: { uid, email: userEmail, displayName, photoURL } };
+    } catch (error) {
+      console.error("Login error:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
-//   async () => {
-//     const response = await axios.get(
-//       "http://localhost:5000/api/auth/check-auth",
-//       {
-//         withCredentials: true,
-//         headers: {
-//           "Cache-Control":
-//             "no-store, no-cache, must-revalidate, proxy-revalidate",
-//         },
-//       }
-//     );
+// ✅ Logout User
+export const logoutUser = createAsyncThunk("/auth/logout", async () => {
+  await signOut(auth);
+});
 
-//     return response.data;
-//   }
-// );
+// ✅ Check Auth (Firebase keeps track of the logged-in user)
+export const checkAuth = createAsyncThunk("/auth/checkauth", async () => {
+  return new Promise((resolve) => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const { uid, email, displayName, photoURL } = user; // 🔹 Extract serializable fields
+        resolve({ uid, email, displayName, photoURL });
+      } else {
+        resolve(null);
+      }
+    });
+  });
+});
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {
-    setUser: (state, action) => {},
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(registerUser.fulfilled, (state) => {
+      .addCase(registerUser.fulfilled, (state, action) => {
+        console.log("User registered successfully:", action.payload);
         state.isLoading = false;
-        state.user = null;
-        state.isAuthenticated = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
       })
       .addCase(registerUser.rejected, (state) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+      })
+      .addCase(loginUser.rejected, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(checkAuth.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+        state.isAuthenticated = !!action.payload;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
       });
-      // .addCase(loginUser.fulfilled, (state, action) => {
-      //   console.log(action);
-
-      //   state.isLoading = false;
-      //   state.user = action.payload.success ? action.payload.user : null;
-      //   state.isAuthenticated = action.payload.success;
-      // })
-      // .addCase(loginUser.rejected, (state, action) => {
-      //   state.isLoading = false;
-      //   state.user = null;
-      //   state.isAuthenticated = false;
-      // })
-      // .addCase(checkAuth.pending, (state) => {
-      //   state.isLoading = true;
-      // })
-      // .addCase(checkAuth.fulfilled, (state, action) => {
-      //   state.isLoading = false;
-      //   state.user = action.payload.success ? action.payload.user : null;
-      //   state.isAuthenticated = action.payload.success;
-      // })
-      // .addCase(checkAuth.rejected, (state, action) => {
-      //   state.isLoading = false;
-      //   state.user = null;
-      //   state.isAuthenticated = false;
-      // })
-      // .addCase(logoutUser.fulfilled, (state, action) => {
-      //   state.isLoading = false;
-      //   state.user = null;
-      //   state.isAuthenticated = false;
-      // });
   },
 });
 
-export const { setUser } = authSlice.actions;
 export default authSlice.reducer;

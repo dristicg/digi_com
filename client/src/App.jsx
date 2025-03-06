@@ -1,6 +1,10 @@
 
-// import { Route, Routes } from "react-router-dom";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+
+import { Router, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./config/firebase"; // Ensure correct path to Firebase config
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
@@ -15,92 +19,67 @@ import ShoppingHome from "./pages/shopping-view/home";
 import ShoppingListing from "./pages/shopping-view/listing";
 import ShoppingCheckout from "./pages/shopping-view/checkout";
 import ShoppingAccount from "./pages/shopping-view/account";
-import CheckAuth from "./components/common/check-auth";
-import UnauthPage from "./pages/unauth-page/index";
-import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
-//  import { checkAuth } from "./store/auth-slice/index"; // Ensure the correct path
-//  import { Navigate } from "react-router-dom";
-import PrivateRoutes from "./components/common/PrivateRoutes";
-import "./App.css";
-import './index.css'; // Ya jo bhi CSS file ho
 import SearchProducts from "./pages/shopping-view/search";
-//import NotFound from "@/pages/NotFound"; 
-
-
+import UnauthPage from "./pages/unauth-page/index";
+import DebugAuth from "./components/DebugAuth"; // Debugging Firebase auth state
+import "./App.css";
+import "./index.css";
 
 function PrivateRoute({ children }) {
-  const { user } = useSelector((state) => state.auth); // Check if user is logged in
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) return <div>Loading...</div>; // Display a loading state while checking auth
+
   return user ? children : <Navigate to="/auth/login" />;
 }
 
 function App() {
-
-  // const { user, isAuthenticated, isLoading } = useSelector(
-  //   (state) => state.auth
-  // );
-  // for testing 
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const isLoading = false; // Force it to false
-
-
-  const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   dispatch(checkAuth());
-  // }, [dispatch]);
-
-  if (isLoading) console.log("Still Loading...");
-
-
-
-
   return (
-    <div className="flex flex-col overflow-hidden bg-white">
-      {/* <h1>Header Components</h1> */}
+    
+      <div className="flex flex-col overflow-hidden bg-white">
+        <DebugAuth /> {/* Logs Firebase authentication state */}
+        <Routes>
+          <Route path="/" element={<Navigate to="/shop/home" />} />
 
-      <Routes>
-        <Route
-          path="/auth"
-          element={
-            <AuthLayout />
-          }
-        >
-          <Route path="login" element={<AuthLogin />} />
-          <Route path="register" element={<AuthRegister />} />
-        </Route>
+          {/* Authentication Routes */}
+          <Route path="/auth" element={<AuthLayout />}>
+            <Route path="login" element={<AuthLogin />} />
+            <Route path="register" element={<AuthRegister />} />
+          </Route>
 
-        <Route path="/admin" element={<AdminLayout />} >
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="features" element={<AdminFeatures />} />
-        </Route>
+          {/* Admin Routes (Private) */}
+          <Route path="/admin" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="features" element={<AdminFeatures />} />
+          </Route>
 
+          {/* Shopping Routes */}
+          <Route path="/shop" element={<ShoppingLayout />}>
+            <Route path="home" element={<ShoppingHome />} />
+            <Route path="listing" element={<ShoppingListing />} />
+            <Route path="checkout" element={<ShoppingCheckout />} />
+            <Route path="account" element={<PrivateRoute><ShoppingAccount /></PrivateRoute>} />
+            <Route path="search" element={<SearchProducts />} />
+          </Route>
 
-        <Route
-          path="/shop"
-          element={
-           // <PrivateRoute>
-              <ShoppingLayout />
-           // </PrivateRoute>
-          }
-        >
-        <Route path="home" element={<ShoppingHome />} />
-        <Route path="listing" element={<ShoppingListing />} />
-        <Route path="checkout" element={<ShoppingCheckout />} />
-        <Route path="account" element={<ShoppingAccount />} />
-        {/* <Route path="paypal-return" element={<PaypalReturnPage />} />
-          <Route path="payment-success" element={<PaymentSuccessPage />} /> */}
-          <Route path="search" element={<SearchProducts />} />
-        </Route>
-
-        <Route path="*" element={<NotFound />} />
-        <Route path="/unauth-page" element={<UnauthPage />} />
-
-      </Routes>
-
-    </div>
+          {/* Miscellaneous Routes */}
+          <Route path="/unauth-page" element={<UnauthPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+  
   );
 }
 
