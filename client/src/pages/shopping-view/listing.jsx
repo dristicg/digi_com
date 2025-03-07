@@ -1,5 +1,6 @@
 
-
+//import { getCartItems } from "../../store/shop/cart-slice/index"; // Correct path
+import { getAuth } from "firebase/auth"; // Import Firebase auth
 import ProductFilter from "@/components/shopping-view/filter";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
@@ -44,7 +45,8 @@ function ShoppingListing() {
   const { productList, productDetails } = useSelector(
     (state) => state.shopProducts
   );
-  const { cartItems } = useSelector((state) => state.shopCart);
+  const { cartItems = [] } = useSelector((state) => state.shopCart);
+
   const { user } = useSelector((state) => state.auth);
   const [filters, setFilters] = useState({});
   const [sort, setSort] = useState(null);
@@ -86,13 +88,31 @@ function ShoppingListing() {
   }
 
   function handleAddtoCart(getCurrentProductId, getTotalStock) {
-    console.log(cartItems);
-    let getCartItems = cartItems.items || [];
+    const auth = getAuth();
+    const user = auth.currentUser; // ✅ Get authenticated user
 
-    if (getCartItems.length) {
-      const indexOfCurrentItem = getCartItems.findIndex(
+    console.log("🔍 Firebase User:", user);
+
+    if (!user) {
+      toast({
+        title: "You must be logged in to add to cart",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const userId = user.uid; // ✅ Get Firebase User ID
+    console.log("🛒 User ID:", userId); // Debugging log
+
+    console.log(cartItems);
+    let cartItemsList = cartItems?.items || [];
+
+
+    if (cartItemsList.length) {
+      const indexOfCurrentItem = cartItemsList.findIndex(
         (item) => item.productId === getCurrentProductId
       );
+
       if (indexOfCurrentItem > -1) {
         const getQuantity = getCartItems[indexOfCurrentItem].quantity;
         if (getQuantity + 1 > getTotalStock) {
@@ -108,13 +128,18 @@ function ShoppingListing() {
 
     dispatch(
       addToCart({
-        userId: user?.id,
+        userId,
         productId: getCurrentProductId,
         quantity: 1,
       })
     ).then((data) => {
       if (data?.payload?.success) {
-        dispatch(getCartItems(user?.id));
+        console.log("🛒 Dispatching getCartItems with userId:", user?.id);
+        console.log("🔍 getCartItems function:", getCartItems);
+        
+        dispatch(getCartItems(user.id)).then((data) => {
+          console.log("🛒 Fetched Cart Items:", data.payload);
+        });
         toast({
           title: "Product is added to cart",
         });
@@ -145,7 +170,14 @@ function ShoppingListing() {
     if (productDetails !== null) setOpenDetailsDialog(true);
   }, [productDetails]);
 
-  console.log(productList, "productListproductListproductList");
+  useEffect(() => {
+    if (user?.id) {
+      dispatch(getCartItems(user.id)); // Fetch cart items on load
+    }
+  }, [dispatch, user]);
+
+
+  // console.log(productList, "productListproductListproductList");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">
@@ -186,12 +218,12 @@ function ShoppingListing() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
           {productList && productList.length > 0
             ? productList.map((productItem) => (
-                <ShoppingProductTile
-                  handleGetProductDetails={handleGetProductDetails}
-                  product={productItem}
-                  handleAddtoCart={handleAddtoCart}
-                />
-              ))
+              <ShoppingProductTile
+                handleGetProductDetails={handleGetProductDetails}
+                product={productItem}
+                handleAddtoCart={handleAddtoCart}
+              />
+            ))
             : null}
         </div>
       </div>
