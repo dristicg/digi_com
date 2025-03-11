@@ -12,6 +12,7 @@ import {
 } from "@/store/shop/address-slice";
 import AddressCard from "./address-card";
 import { useToast } from "../ui/use-toast";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const initialAddressFormData = {
   address: "",
@@ -25,9 +26,10 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   const [formData, setFormData] = useState(initialAddressFormData);
   const [currentEditedId, setCurrentEditedId] = useState(null);
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  //const { user } = useSelector((state) => state.auth);
   const { addressList } = useSelector((state) => state.shopAddress);
   const { toast } = useToast();
+  const [user, setUser] = useState(null);
 
   function handleManageAddress(event) {
     event.preventDefault();
@@ -42,45 +44,72 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
       return;
     }
 
+    console.log("User Object from Firebase:", user);
+    console.log("User ID from Firebase:", user?.uid);
+
     currentEditedId !== null
-      ? dispatch(
-          editaAddress({
-            userId: user?.id,
-            addressId: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllAddresses(user?.id));
-            setCurrentEditedId(null);
-            setFormData(initialAddressFormData);
-            toast({
-              title: "Address updated successfully",
-            });
-          }
-        })
-      : dispatch(
-          addNewAddress({
-            ...formData,
-            userId: user?.id,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllAddresses(user?.id));
-            setFormData(initialAddressFormData);
-            toast({
-              title: "Address added successfully",
-            });
-          }
+  ? dispatch(
+      editaAddress({
+        userId: user?.uid,
+        addressId: currentEditedId,
+        formData,
+      })
+    ).then((data) => {
+      console.log("Edit Address - Sent Data:", {
+        userId: user?.uid,
+        addressId: currentEditedId,
+        formData,
+      });
+
+      console.log("Edit Address - Response Data:", data);
+
+      if (data?.payload?.success) {
+        dispatch(fetchAllAddresses(user?.uid));
+        setCurrentEditedId(null);
+        setFormData(initialAddressFormData);
+        toast({
+          title: "Address updated successfully",
         });
+      }
+    })
+    
+  : dispatch(
+      addNewAddress({ 
+        ...formData,
+        userId: user?.uid,
+      })
+    ).then((data) => {
+      console.log("Add New Address - Sent Data:", {
+        ...formData,
+        userId: user?.uid,
+      });
+      console.log(
+        "Sending this data to API:", 
+        JSON.stringify({
+          ...formData,
+          userId: user?.uid,
+        })
+      );
+
+      console.log("Add New Address - Response Data:", data);
+
+      if (data?.payload?.success) {
+        dispatch(fetchAllAddresses(user?.uid));
+        setFormData(initialAddressFormData);
+        toast({
+          title: "Address added successfully",
+        });
+      }
+    });
   }
+
 
   function handleDeleteAddress(getCurrentAddress) {
     dispatch(
-      deleteAddress({ userId: user?.id, addressId: getCurrentAddress._id })
+      deleteAddress({ userId: user?.uid, addressId: getCurrentAddress._id })
     ).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchAllAddresses(user?.id));
+        dispatch(fetchAllAddresses(user?.uid));
         toast({
           title: "Address deleted successfully",
         });
@@ -107,24 +136,47 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   }
 
   useEffect(() => {
-    dispatch(fetchAllAddresses(user?.id));
-  }, [dispatch]);
+    if (user?.uid) {
+      dispatch(fetchAllAddresses(user?.uid));
+    }
+  }, [dispatch, user?.uid]);
+
+  useEffect(() => {
+    console.log("Updated Address List:", addressList);
+  }, [addressList]);
+  
+
+  useEffect(() => {
+    if (user) {
+      console.log("Firebase User Loaded:", user);
+    }
+  }, [user]);
+
+    // 🔹 Fetch authenticated user from Firebase
+    useEffect(() => {
+      const auth = getAuth();
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+        console.log("Firebase Auth User:", currentUser);
+      });
+      return () => unsubscribe(); // Cleanup on unmount
+    }, []);
 
   console.log(addressList, "addressList");
 
   return (
-    <Card>
+    <Card key={addressList.length}>
       <div className="mb-5 p-3 grid grid-cols-1 sm:grid-cols-2  gap-2">
         {addressList && addressList.length > 0
           ? addressList.map((singleAddressItem) => (
-              <AddressCard
-                selectedId={selectedId}
-                handleDeleteAddress={handleDeleteAddress}
-                addressInfo={singleAddressItem}
-                handleEditAddress={handleEditAddress}
-                setCurrentSelectedAddress={setCurrentSelectedAddress}
-              />
-            ))
+            <AddressCard
+              selectedId={selectedId}
+              handleDeleteAddress={handleDeleteAddress}
+              addressInfo={singleAddressItem}
+              handleEditAddress={handleEditAddress}
+              setCurrentSelectedAddress={setCurrentSelectedAddress}
+            />
+          ))
           : null}
       </div>
       <CardHeader>

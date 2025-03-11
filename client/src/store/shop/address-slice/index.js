@@ -2,23 +2,32 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const initialState = {
   isLoading: false,
-  addressList: [],
+  addressList : [],
 };
+
 
 export const addNewAddress = createAsyncThunk(
   "/addresses/addNewAddress",
-  async (formData) => {
-    const response = await axios.post(
-      "http://localhost:5000/api/shop/address/add",
-      formData
-    );
-
-    return response.data;
+  async (formData, { rejectWithValue }) => {
+    console.log("Sending this data to API:", formData); // <-- Add this line
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/shop/address/add",
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error adding address:", error.response?.data || error);
+      return rejectWithValue(error.response?.data || "Unknown error");
+    }
   }
 );
+
 
 export const fetchAllAddresses = createAsyncThunk(
   "/addresses/fetchAllAddresses",
@@ -33,11 +42,14 @@ export const fetchAllAddresses = createAsyncThunk(
 
 export const editaAddress = createAsyncThunk(
   "/addresses/editaAddress",
+
   async ({ userId, addressId, formData }) => {
     const response = await axios.put(
       `http://localhost:5000/api/shop/address/update/${userId}/${addressId}`,
       formData
     );
+    console.log("Sending data:", formData);
+
 
     return response.data;
   }
@@ -65,7 +77,8 @@ const addressSlice = createSlice({
       })
       .addCase(addNewAddress.fulfilled, (state, action) => {
         state.isLoading = false;
-      })
+        state.addressList = action.payload.data; // Replace instead of push
+      })      
       .addCase(addNewAddress.rejected, (state) => {
         state.isLoading = false;
       })
@@ -73,9 +86,10 @@ const addressSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(fetchAllAddresses.fulfilled, (state, action) => {
+        console.log("Fetched addresses:", action.payload.data);
         state.isLoading = false;
         state.addressList = action.payload.data;
-      })
+      })      
       .addCase(fetchAllAddresses.rejected, (state) => {
         state.isLoading = false;
         state.addressList = [];

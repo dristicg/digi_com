@@ -10,7 +10,15 @@ const {
 
 const router = express.Router();
 
-router.post("/add", addAddress);
+router.post("/add", async (req, res) => {
+  const { userId, address, city, pincode, phone } = req.body;
+  
+  if (!userId || !address || !city || !pincode || !phone) {
+    return res.status(400).json({ success: false, message: "Invalid data provided!" });
+  }
+
+  // Continue with database logic...
+});
 router.get("/get/:userId", fetchAllAddress);
 router.delete("/delete/:userId/:addressId", deleteAddress);
 router.put("/update/:userId/:addressId", editAddress);

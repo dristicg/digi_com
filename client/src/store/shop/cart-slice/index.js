@@ -1,157 +1,5 @@
 
 
-// import axios from "axios";
-// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import { getAuth } from "firebase/auth";
-
-// const initialState = {
-//   cartItems: [],
-//   isLoading: false,
-// };
-
-
-
-// export const addToCart = createAsyncThunk(
-//   "cart/addToCart",
-//   async ({ userId, productId, quantity }, { rejectWithValue }) => {
-//     console.log("🛒 Adding to cart:", { userId, productId, quantity }); // Debugging log
-
-//     try {
-//       const response = await axios.post(
-//         "http://localhost:5000/api/shop/cart/add",
-//         {
-//           userId,
-//           productId,
-//           quantity,
-//         }
-//       );
-//       console.log("✅ Cart Add Response:", response.data);
-//       return response.data;
-//     } catch (error) {
-//       console.error("❌ Cart Add Error:", error.response?.data || error);
-//       return rejectWithValue(error.response?.data || "Error adding to cart");
-//     }
-//   }
-// );
-
-
-
-// export const getCartItems = createAsyncThunk(
-//   "cart/getCartItems",
-//   async (_, { rejectWithValue }) => {
-//     const auth = getAuth();
-//     const user = auth.currentUser; // ✅ Get the logged-in user directly
-
-//     if (!user) {
-//       console.error("❌ No authenticated user found.");
-//       return rejectWithValue("User not logged in");
-//     }
-
-//     const userId = user.uid;
-//    // console.log("✅ Retrieved userId:", userId);
-
-//     try {
-//       const response = await axios.get(
-//         `http://localhost:5000/api/shop/cart/${userId}`
-//       );
-//       // console.log("📦 Cart API Response:", response.data);
-//       return response.data; // ✅ Return response data properly
-//     } catch (error) {
-//       console.error("❌ Error fetching cart:", error.response?.data || error);
-//       return rejectWithValue(error.response?.data || "Error fetching cart");
-//     }
-//   }
-// );
-
-
-
-
-
-
-// export const deleteCartItem = createAsyncThunk(
-//   "cart/deleteCartItem",
-//   async ({ userId, productId }) => {
-//     const response = await axios.delete(
-//       `http://localhost:5000/api/shop/cart/${userId}/${productId}`
-//     );
-
-//     return response.data;
-//   }
-// );
-
-// export const updateCartQuantity = createAsyncThunk(
-//   "cart/updateCartQuantity",
-//   async ({ userId, productId, quantity }) => {
-//     const response = await axios.put(
-//       "http://localhost:5000/api/shop/cart/update-cart",
-//       {
-//         userId,
-//         productId,
-//         quantity,
-//       }
-//     );
-
-//     return response.data;
-//   }
-// );
-
-// const shoppingCartSlice = createSlice({
-//   name: "shoppingCart",
-//   initialState,
-//   reducers: {},
-//   extraReducers: (builder) => {
-//     builder
-   
-//       .addCase(addToCart.pending, (state) => {
-//         state.isLoading = true;
-//       })
-//       .addCase(addToCart.fulfilled, (state, action) => {
-//         state.isLoading = false;
-//         state.cartItems = action.payload.data;
-//       })
-//       .addCase(addToCart.rejected, (state) => {
-//         state.isLoading = false;
-//         state.cartItems = [];
-//       })
-//       .addCase(getCartItems.pending, (state) => {
-//         state.isLoading = true;
-//       })
-//       .addCase(getCartItems.fulfilled, (state, action) => {
-//        // console.log("✅ Updating Redux cart state:", action.payload);
-//         state.cartItems = action.payload.items || []; 
-//       })
-//       .addCase(getCartItems.rejected, (state) => {
-//         state.isLoading = false;
-//         state.cartItems = [];
-//       })
-//       .addCase(updateCartQuantity.pending, (state) => {
-//         state.isLoading = true;
-//       })
-//       .addCase(updateCartQuantity.fulfilled, (state, action) => {
-//         state.isLoading = false;
-//         state.cartItems = action.payload.data;
-//       })
-//       .addCase(updateCartQuantity.rejected, (state) => {
-//         state.isLoading = false;
-//         state.cartItems = [];
-//       })
-//       .addCase(deleteCartItem.pending, (state) => {
-//         state.isLoading = true;
-//       })
-//       .addCase(deleteCartItem.fulfilled, (state, action) => {
-//         state.isLoading = false;
-//         state.cartItems = action.payload.data;
-//       })
-//       .addCase(deleteCartItem.rejected, (state) => {
-//         state.isLoading = false;
-//         state.cartItems = [];
-//       });
-      
-//   },
-// });
-
-// export default shoppingCartSlice.reducer;
-
 
 import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
@@ -159,6 +7,7 @@ import { getAuth } from "firebase/auth";
 
 const initialState = {
   cartItems: [],
+  totalAmount: 0,  // ✅ Added total amoun
   isLoading: false,
   error: null, // Added for better error tracking
 };
@@ -246,7 +95,14 @@ export const updateCartQuantity = createAsyncThunk(
 const shoppingCartSlice = createSlice({
   name: "shoppingCart",
   initialState,
-  reducers: {},
+  reducers: {
+    // ✅ Calculate Total Amount
+    calculateTotal: (state) => {
+      state.totalAmount = state.cartItems.reduce(
+        (sum, item) => sum + item.price * item.quantity, 0
+      );
+    },
+  },
   extraReducers: (builder) => {
     builder
       // 🔄 Add to Cart
@@ -269,6 +125,9 @@ const shoppingCartSlice = createSlice({
       .addCase(getCartItems.fulfilled, (state, action) => {
         state.isLoading = false;
         state.cartItems = action.payload.items || [];
+        state.totalAmount = state.cartItems.reduce(
+          (sum, item) => sum + item.price * item.quantity, 0
+        );
       })
       .addCase(getCartItems.rejected, (state, action) => {
         state.isLoading = false;
@@ -284,6 +143,9 @@ const shoppingCartSlice = createSlice({
         state.cartItems = state.cartItems.filter(
           (item) => item.productId !== action.payload.productId
         );
+        state.totalAmount = state.cartItems.reduce(
+          (sum, item) => sum + item.price * item.quantity, 0
+        ); // ✅ Update total after delete
       })
       .addCase(deleteCartItem.rejected, (state, action) => {
         state.isLoading = false;

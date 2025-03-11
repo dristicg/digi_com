@@ -11,7 +11,11 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 function ShoppingCheckout() {
   const dispatch = useDispatch();
   const { toast } = useToast();
-  const { cartItems } = useSelector((state) => state.shopCart);
+  const cartItems = useSelector((state) => state.shopCart?.cartItems || []);
+  console.log("🛒 Cart Items:", cartItems);
+
+  
+
   const shopOrder = useSelector((state) => state.shopOrder) || {}; // Ensure it's not undefined
   const { approvalURL } = shopOrder;
 
@@ -35,14 +39,14 @@ function ShoppingCheckout() {
 
   // Calculate Total Cart Amount
   const totalCartAmount =
-    cartItems?.items?.length > 0
-      ? cartItems.items.reduce(
-          (sum, item) =>
-            sum +
-            (item?.salePrice > 0 ? item?.salePrice : item?.price) * item?.quantity,
-          0
-        )
-      : 0;
+  cartItems.length > 0
+    ? cartItems.reduce(
+        (sum, item) =>
+          sum + (item.salePrice > 0 ? item.salePrice : item.price) * item.quantity,
+        0
+      )
+    : 0;
+
 
   function handleInitiatePaypalPayment() {
     if (!user) {
@@ -109,8 +113,8 @@ function ShoppingCheckout() {
           setCurrentSelectedAddress={setCurrentSelectedAddress}
         />
         <div className="flex flex-col gap-4">
-          {cartItems?.items?.length > 0
-            ? cartItems.items.map((item) => (
+          {cartItems.length > 0
+            ? cartItems.map((item) => (
                 <UserCartItemsContent key={item.productId} cartItem={item} />
               ))
             : <p className="text-gray-500">Your cart is empty.</p>}

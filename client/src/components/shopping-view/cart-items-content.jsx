@@ -53,6 +53,12 @@ function UserCartItemsContent({ cartItem }) {
     console.log("👉 Action:", typeOfAction, "| New Quantity:", newQuantity);
 
 
+    console.log("📤 Dispatching updateCartQuantity with:", {
+      userId: user?.uid,
+      productId: getCartItem?.productId,
+      quantity: newQuantity,
+    });
+
     dispatch(updateCartQuantity({
       userId: user.uid,  // 🔥 Firebase uses `uid`, not `id`
       productId: getCartItem.productId,
@@ -64,8 +70,8 @@ function UserCartItemsContent({ cartItem }) {
         toast({ title: "Cart item updated successfully" });
       } else {
         console.error("❌ Failed to update cart item", data);
-        console.error("📌 Payload:", data?.payload);
-        console.error("📌 Error:", data?.error);
+        // console.error("📌 Payload:", data?.payload);
+        // console.error("📌 Error:", data?.error);
       }
     });
     
